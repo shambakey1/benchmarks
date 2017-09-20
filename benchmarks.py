@@ -184,19 +184,19 @@ image_name: Image name at Docker hub with required libraries for the test. Defau
         repeat_min=1
         repeat_max=10
         for inparam_item in inparam:
-            env_list=[]                    # List of environment variables to be passed to created services
+            env_list=[]                     # List of environment variables to be passed to created services
             rows=inparam_item[0]            # Matrix number of rows for current test
             cols=inparam_item[1]            # Matrix number of columns for current test
             replicas=inparam_item[2]        # Matrix number of replicas for current test
             if replicas>1:
-                mode_type=docker.types.services.ServiceMode('replicated',replicas)
+                mode_type=docker.types.services.ServiceMode('replicated',int(replicas))
             else:
                 mode_type=None
-            rept=inparam_item[3]            # Matrix repeatition id for current test
+            rept=inparam_item[3]            # Matrix repetition id for current test
             serv_name=str(rows)+"_"+str(cols)+"_"+str(replicas)+"_"+str(rept)    # Assign service name
             FIN=str(rows)+"_"+str(cols)            # The input C file to be executed in the container
             env_list.append("FIN="+FIN)
-            FOUT="results/"+serv_name+"_{{.Task.ID}}"    # The outptut of the C benchmark file
+            FOUT="results/"+serv_name+"_{{.Task.ID}}"    # The output of the C benchmark file
             env_list.append("FOUT="+FOUT)
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart))
             if rept==repeat_min or rept==repeat_max:    # Check system responsiveness
