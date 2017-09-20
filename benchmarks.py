@@ -193,7 +193,7 @@ image_name: Image name at Docker hub with required libraries for the test. Defau
             else:
                 mode_type=None
             rept=inparam_item[3]            # Matrix repeatition id for current test
-            serv_name=str(rows)+"_"+str(cols)+"_"+str(replica)+"_"+str(rept)    # Assign service name
+            serv_name=str(rows)+"_"+str(cols)+"_"+str(replicas)+"_"+str(rept)    # Assign service name
             FIN=str(rows)+"_"+str(cols)            # The input C file to be executed in the container
             env_list.append("FIN="+FIN)
             FOUT="results/"+serv_name+"_{{.Task.ID}}"    # The outptut of the C benchmark file
@@ -208,7 +208,6 @@ def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_mi
 
     import glob
     
-    tt=[]
     err_pat_list=[]
     print "Determine wrong response files"    
     err_res_list=getWrongResFiles(res_path)                    # Determine wrong response files
@@ -254,4 +253,8 @@ def tempRemZGESVExp():
 
 def collectZGESVOutFileResults(fin):
     ''' Extract results from file with results of lapacke zgesv benchmark '''
+   
+inparam=readInparam("/home/ubuntu/benchmarks/mis_test_rows_1.out")
+runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=inparam)
+    
 
