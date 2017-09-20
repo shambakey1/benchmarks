@@ -160,10 +160,13 @@ def readInparam(fin):
     return inparam
         
 
-def runBenchmarkTests(test=None,image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=None):
+def runBenchmarkTests(test=None,image_name="shambakey1/lapacke_bench",restart="on-failure",constr=None,inparam=None):
     ''' Run benchmark tests according to the input list parameters (e.g., in addition to the common parameters like image name, and service name, additional benchmark parameters are provides like matrices specifications (rows, columns), number of service replicas, repeat number for each test ... etc). 
 test: The required benchmark test (e.g., lapacke zgesv test). Each test can have different parameters
 image_name: Image name at Docker hub with required libraries for the test. Default is shambakey1/lapacke_bench, but it can change for different benchmarks
+restart: Restart policy for service
+constr: List of constraints applied to service
+inparam: List of input parameters for the command(s) running by the service
 '''
 
     import docker, sys
@@ -198,7 +201,9 @@ image_name: Image name at Docker hub with required libraries for the test. Defau
             env_list.append("FIN="+FIN)
             FOUT="results/"+serv_name+"_{{.Task.ID}}"    # The output of the C benchmark file
             env_list.append("FOUT="+FOUT)
-            client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart))
+            if not constr:
+                constr=['']
+            client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
             if rept==repeat_min or rept==repeat_max:    # Check system responsiveness
                 resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_src,"results",serv_name+".res")
                 os.system(resp_cmd)
@@ -255,6 +260,6 @@ def collectZGESVOutFileResults(fin):
     ''' Extract results from file with results of lapacke zgesv benchmark '''
    
 inparam=readInparam("/home/ubuntu/benchmarks/mis_test_rows_1.out")
-runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=inparam)
+runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=inparam,constrains=['node.role!=manager'])
     
 
