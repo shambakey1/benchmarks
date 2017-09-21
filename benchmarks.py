@@ -260,6 +260,6 @@ def collectZGESVOutFileResults(fin):
     ''' Extract results from file with results of lapacke zgesv benchmark '''
    
 inparam=readInparam("/home/ubuntu/benchmarks/mis_test_rows_1.out")
-runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=inparam,constrains=['node.role!=manager'])
+runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=inparam,constr=['node.role!=manager'])
     
 
