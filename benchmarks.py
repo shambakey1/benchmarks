@@ -178,13 +178,13 @@ inparam: List of input parameters for the command(s) running by the service
         print "Not valid input parameters"
         sys.exit()
     client = docker.from_env()
-    wrk_dir="/home/zgesv"                # Work directory inside the running container. Currently, it is always HOME directory
     if test=="zgesv":            # If required test is lapacke zgesv
         mnts=[]                # List of mounts to be passed to created services
-        wrk_dir_src="/home/ubuntu/benchmarks/zgesv"
-        #bench_com="pwd>>test.log;ls>>test.log;./bench_task.sh"                # The command to be executed in each service container
-        bench_com="pwd>>test.log"                # The command to be executed in each service container
-        mnts.append(wrk_dir_src+":"+wrk_dir)            # Mount the zgesv directory inside service
+        wrk_dir="/home/zgesv"               # Work directory inside each container for this specific test
+        wrk_dir_results="/home/ubuntu/benchmarks/zgesv/results" # Result directory for this specific test
+        results_dir="/home/zgesv/results"                # Results directory inside the running container
+        bench_com="./bench_task.sh"                # The command to be executed in each service container
+        mnts.append(wrk_dir_results+":"+results_dir)           # Mount the zgesv directory inside service
         repeat_min=1
         repeat_max=10
         for inparam_item in inparam:
@@ -206,7 +206,7 @@ inparam: List of input parameters for the command(s) running by the service
                 constr=['']
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
             if rept==repeat_min or rept==repeat_max:    # Check system responsiveness
-                resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_src,"results",serv_name+".res")
+                resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,"results",serv_name+".res")
                 os.system(resp_cmd)
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
