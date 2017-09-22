@@ -178,12 +178,12 @@ inparam: List of input parameters for the command(s) running by the service
         print "Not valid input parameters"
         sys.exit()
     client = docker.from_env()
-    wrk_dir="/home"                # Work directory inside the running container. Currently, it is alawys HOME directory
+    wrk_dir="/home/zgesv"                # Work directory inside the running container. Currently, it is always HOME directory
     if test=="zgesv":            # If required test is lapacke zgesv
         mnts=[]                # List of mounts to be passed to created services
         wrk_dir_src="/home/ubuntu/benchmarks/zgesv"
         bench_com="./bench_task.sh"                # The command to be executed in each service container
-        mnts.append(wrk_dir_src+":/home")            # Mount the zgesv directory inside service
+        mnts.append(wrk_dir_src+":"+wrk_dir)            # Mount the zgesv directory inside service
         repeat_min=1
         repeat_max=10
         for inparam_item in inparam:
