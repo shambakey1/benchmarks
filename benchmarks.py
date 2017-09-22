@@ -181,7 +181,7 @@ inparam: List of input parameters for the command(s) running by the service
     wrk_dir="/home"                # Work directory inside the running container. Currently, it is alawys HOME directory
     if test=="zgesv":            # If required test is lapacke zgesv
         mnts=[]                # List of mounts to be passed to created services
-        wrk_dir_src="/home/ubuntu/benchmarks/zgesv"
+        wrk_dir_src="/home/ubuntu/benchmarks_org/zgesv1"
         bench_com="./bench_task.sh"                # The command to be executed in each service container
         mnts.append(wrk_dir_src+":/home")            # Mount the zgesv directory inside service
         repeat_min=1
@@ -259,7 +259,7 @@ def tempRemZGESVExp():
 def collectZGESVOutFileResults(fin):
     ''' Extract results from file with results of lapacke zgesv benchmark '''
    
-inparam=readInparam("/home/ubuntu/benchmarks/mis_test_rows_1.out")
-runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="on-failure",inparam=inparam,constr=['node.role!=manager'])
+inparam=readInparam("/home/ubuntu/mis_test_rows_2.out")
+runBenchmarkTests(test='zgesv',image_name="shambakey1/lapacke_bench",restart="none",inparam=inparam,constr=['node.role!=manager'])
     
 
