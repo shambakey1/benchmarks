@@ -182,7 +182,7 @@ inparam: List of input parameters for the command(s) running by the service
     if test=="zgesv":            # If required test is lapacke zgesv
         mnts=[]                # List of mounts to be passed to created services
         wrk_dir_src="/home/ubuntu/benchmarks/zgesv"
-        bench_com="pwd>test.log;ls;./bench_task.sh"                # The command to be executed in each service container
+        bench_com="pwd>>test.log;ls>>test.log;./bench_task.sh"                # The command to be executed in each service container
         mnts.append(wrk_dir_src+":"+wrk_dir)            # Mount the zgesv directory inside service
         repeat_min=1
         repeat_max=10
