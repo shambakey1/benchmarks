@@ -203,6 +203,10 @@ inparam: List of input parameters for the command(s) running by the service
             env_list.append("FOUT="+FOUT)
             if not constr:
                 constr=['']
+            ent=os.listdir(os.getcwd())
+            with open("log.out","w") as flog:
+                for line in ent:
+                    flog.write(line)
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
             if rept==repeat_min or rept==repeat_max:    # Check system responsiveness
                 resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_src,"results",serv_name+".res")
