@@ -5,7 +5,6 @@ Created on Sep 19, 2017
 '''
 
 import os
-from pandas.tests.test_format import TestStringRepTimestamp
 
 def checkItemsInFile(fin,strin):
     ''' Check if a specific file has all specific items in a list '''
