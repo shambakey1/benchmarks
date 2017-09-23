@@ -205,17 +205,9 @@ inparam: List of input parameters for the command(s) running by the service
             if not constr:
                 constr=['']
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
-            if rept==repeat_min or rept==repeat_max:    # Check system responsiveness
+            if int(rept)==repeat_min or int(rept)==repeat_max:    # Check system responsiveness
                 resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res")
                 os.system(resp_cmd)
-            else:
-                resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res")
-                print(resp_cmd+" does not work")
-                print(rept)
-                print(repeat_min)
-                print(repeat_max)
-                print(int(rept)==repeat_min)
-                print(int(rept)==repeat_max)
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
     ''' Remove wrong results and determine remaining experiments for the zgesv benchmark '''
