@@ -208,6 +208,9 @@ inparam: List of input parameters for the command(s) running by the service
             if rept==repeat_min or rept==repeat_max:    # Check system responsiveness
                 resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res")
                 os.system(resp_cmd)
+            else:
+                resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res")
+                print(resp_cmd+" does not work")
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
     ''' Remove wrong results and determine remaining experiments for the zgesv benchmark '''
