@@ -5,6 +5,7 @@ Created on Sep 19, 2017
 '''
 
 import os
+from pandas.tests.test_format import TestStringRepTimestamp
 
 def checkItemsInFile(fin,strin):
     ''' Check if a specific file has all specific items in a list '''
@@ -210,7 +211,12 @@ inparam: List of input parameters for the command(s) running by the service
                 os.system(resp_cmd)
             else:
                 resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res")
-                print(resp_cmd+" does not work, rept: "+str(rept)+", min: "+str(repeat_min)+", max: "+str(repeat_max))
+                print(resp_cmd+" does not work")
+                print(rept)
+                print(repeat_min)
+                print(repeat_max)
+                print(rept==repeat_min)
+                print(rept==repeat_max)
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
     ''' Remove wrong results and determine remaining experiments for the zgesv benchmark '''
