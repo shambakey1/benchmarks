@@ -214,8 +214,8 @@ inparam: List of input parameters for the command(s) running by the service
                 print(rept)
                 print(repeat_min)
                 print(repeat_max)
-                print(rept==repeat_min)
-                print(rept==repeat_max)
+                print(int(rept)==repeat_min)
+                print(int(rept)==repeat_max)
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
     ''' Remove wrong results and determine remaining experiments for the zgesv benchmark '''
