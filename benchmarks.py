@@ -206,7 +206,7 @@ inparam: List of input parameters for the command(s) running by the service
                 constr=['']
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
             if int(rept)==repeat_min or int(rept)==repeat_max:    # Check system responsiveness
-                resp_cmd="time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res")
+                resp_cmd="/bin/bash -c 'time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res'")
                 print resp_cmd
                 os.system(resp_cmd)
 
