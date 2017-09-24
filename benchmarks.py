@@ -5,6 +5,7 @@ Created on Sep 19, 2017
 '''
 
 import os
+from __builtin__ import str
 
 def checkItemsInFile(fin,strin):
     ''' Check if a specific file has all specific items in a list '''
@@ -256,6 +257,27 @@ def tempRemZGESVExp():
         for i in out_final:
             for j in range(10):
                 f.write(str(i[0])+","+str(i[1])+","+str(i[2])+","+str(j+1)+"\n")
+                
+def genReqZGESVParam(rows_min=1,rows_max=10,cols_min=1,cols_max=10,replicas_min=1,replicas_max=10,rept_min=1,rept_max=10):
+    ''' Generates a list of required parameters (number of rows, columns, replicas, and repetitions) for each test in the ZGESV benchmark.
+        rows_min: Lowest index of rows
+        rows_max: Highest index of rows
+        cols_min: Lowest index of columns
+        cols_max: Highest index of columns
+        replicas_min: Lowest index of number of replicas (e.g., number of replicas of Docker service)
+        replicas_max: Highest index of number of replicas (e.g., number of replicas of Docker service)
+        rept_min: Lowest index of repetitions of each test
+        rept_max: Highest index of repetitions of each test
+    '''
+    
+    inparam=[]
+    for rows in range(rows_min,rows_max+1):
+        for cols in range(cols_min,cols_max+1):
+            for replicas in range(replicas_min,replicas_max+1):
+                for rept in range(rept_min,rept_max+1):
+                    inparam.append([rows,cols,replicas,rept])
+    return inparam
+        
 
 def collectZGESVOutFileResults(fin):
     ''' Extract results from file with results of lapacke zgesv benchmark '''
