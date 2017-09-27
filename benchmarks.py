@@ -6,7 +6,6 @@ Created on Sep 19, 2017
 
 import os, sys
 from __builtin__ import str
-from numpy.distutils.fcompiler import none
 
 def checkItemsInFile(fin,strin):
     ''' Check if a specific file has all specific items in a list '''
@@ -271,9 +270,9 @@ def checkSerComplete(serList):
                     replicas-=1
             if not replicas:    # Current service still has some running tasks. So, 
                 ser_new.append([ser_id,replicas])
-        return ser_new
     except:
         pass
+    return ser_new
 
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
