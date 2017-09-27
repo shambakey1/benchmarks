@@ -242,7 +242,7 @@ def putSerToFile(serList,fout):
         sys.exit()
     with open(fout,'w+') as f:
         for ser in serList:
-            f.write(str(ser[0])+","+str(ser[1]))
+            f.write(str(ser[0])+","+str(ser[1])+"\n")
 
 def checkSerComplete(serList):
     """ Check status of each service in the specified list. Decrease number of tasks in each service any
