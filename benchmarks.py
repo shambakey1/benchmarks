@@ -181,9 +181,9 @@ def runBenchmarkTests(test=None,image_name="shambakey1/lapacke_bench",restart="o
         print "Not valid input parameters"
         sys.exit()
     client = docker.from_env()
-    if not log_f and log_mode=='a':    # Append to log file if already exists
+    if log_f and log_mode=='a':    # Append to log file if already exists
         logf=open(log_f,'a')
-    elif not log_f:                    # Overwrite log file if already exists
+    elif log_f:                    # Overwrite log file if already exists
         logf=open(log_f,'w') 
     if test=="zgesv":            # If required test is lapacke zgesv
         mnts=[]                # List of mounts to be passed to created services
@@ -212,7 +212,7 @@ def runBenchmarkTests(test=None,image_name="shambakey1/lapacke_bench",restart="o
             if not constr:
                 constr=['']
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
-            if not logf:   # If log file is open
+            if log_f:   # If log file is open
                 logf.write(serv_name+','+str(replicas)+'\n')  # Add the newly created service name to the log file
             if int(rept)==repeat_min or int(rept)==repeat_max:    # Check system responsiveness
                 resp_cmd="/bin/bash -c 'time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res'")
