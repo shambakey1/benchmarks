@@ -274,7 +274,27 @@ def checkSerComplete(serList):
         pass
     return ser_new
 
+def periodcCheckSysRes(fin, pout, t):
+    ''' Periodically check system response every t seconds as long as services are still running.
+        fin: Input file containing required services to check. Periodic checking of system response continues as long as one or more services in this file are still running
+        pout: New output log file path
+        t: Time period for checking system response 
+    '''
+    
+    import time,calendar
+    
+    if os.path.isfile(fin):
+        ser=getSerFromFile(fin)
+        if ser:
+            ser_new=checkSerComplete(ser)
+            while ser_new:
+                fout=os.path.join(pout,str(calendar.timegm(time.gmtime()))+'.log')
+                resp_cmd="/bin/bash -c 'time (docker service ps $(docker service ls -q)) &>> "+fout+"'"
+                os.system(resp_cmd)
+                time.sleep(t)
+                ser_new=checkSerComplete(ser_new)
 
+    
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
     ''' Remove wrong results and determine remaining experiments for the zgesv benchmark '''
 
