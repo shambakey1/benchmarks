@@ -4,8 +4,9 @@ Created on Sep 19, 2017
 @author: Mohammed Elshambakey
 '''
 
-import os
+import os, sys
 from __builtin__ import str
+from numpy.distutils.fcompiler import none
 
 def checkItemsInFile(fin,strin):
     ''' Check if a specific file has all specific items in a list '''
@@ -150,7 +151,7 @@ def detRemZGESVTests(path,rows_min,rows_max,cols_min,cols_max,replicas_min,repli
 
 def readInparam(fin):
     ''' Read required parameters from the input file "fin".
-        fin: Input file with required parameters line by line. Each line is comma seperated
+        fin: Input file with required parameters line by line. Each line is comma separated
         Output is a complete list of parameters
     '''
 
@@ -161,14 +162,16 @@ def readInparam(fin):
     return inparam
         
 
-def runBenchmarkTests(test=None,image_name="shambakey1/lapacke_bench",restart="on-failure",constr=None,inparam=None):
-    ''' Run benchmark tests according to the input list parameters (e.g., in addition to the common parameters like image name, and service name, additional benchmark parameters are provides like matrices specifications (rows, columns), number of service replicas, repeat number for each test ... etc). 
-test: The required benchmark test (e.g., lapacke zgesv test). Each test can have different parameters
-image_name: Image name at Docker hub with required libraries for the test. Default is shambakey1/lapacke_bench, but it can change for different benchmarks
-restart: Restart policy for service
-constr: List of constraints applied to service
-inparam: List of input parameters for the command(s) running by the service
-'''
+def runBenchmarkTests(test=None,image_name="shambakey1/lapacke_bench",restart="on-failure",constr=None,inparam=None,log_f=None,log_mode="a"):
+    ''' Run benchmark tests according to the input list parameters (e.g., in addition to the common parameters like image name, and service name, additional benchmark parameters are provides like matrices specifications (rows, columns), number of service replicas, repeat number for each test ... etc).
+        test: The required benchmark test (e.g., lapacke zgesv test). Each test can have different parameters
+        image_name: Image name at Docker hub with required libraries for the test. Default is shambakey1/lapacke_bench, but it can change for different benchmarks
+        restart: Restart policy for service
+        constr: List of constraints applied to service
+        inparam: List of input parameters for the command(s) running by the service
+        log_f: Path to log file. Contents include deployed services. A new log file is created if not already exists.
+        log_mode: If "a", then append current log to contents if log file if already exists. Otherwise, overwrite log file if already exists
+    '''
 
     import docker, sys
 
@@ -179,6 +182,10 @@ inparam: List of input parameters for the command(s) running by the service
         print "Not valid input parameters"
         sys.exit()
     client = docker.from_env()
+    if not log_f and log_mode=='a':    # Append to log file if already exists
+        logf=open(log_f,'a')
+    elif not log_f:                    # Overwrite log file if already exists
+        logf=open(log_f,'w') 
     if test=="zgesv":            # If required test is lapacke zgesv
         mnts=[]                # List of mounts to be passed to created services
         wrk_dir="/home/zgesv"               # Work directory inside each container for this specific test
@@ -206,9 +213,68 @@ inparam: List of input parameters for the command(s) running by the service
             if not constr:
                 constr=['']
             client.services.create(image_name,bench_com,name=serv_name,workdir=wrk_dir,env=env_list,mounts=mnts,mode=mode_type,restart_policy=docker.types.services.RestartPolicy(condition=restart),constraints=constr)
+            if not logf:   # If log file is open
+                logf.write(serv_name+','+str(replicas)+'\n')  # Add the newly created service name to the log file
             if int(rept)==repeat_min or int(rept)==repeat_max:    # Check system responsiveness
                 resp_cmd="/bin/bash -c 'time (docker service ps $(docker service ls -q)) &>> "+os.path.join(wrk_dir_results,serv_name+".res'")
                 os.system(resp_cmd)
+    if not logf:           # Close log file if opened
+        logf.close()
+        
+def getSerFromFile(fin):
+    ''' Read a list of required services from input file, as well as number of tasks (i.e., replicas) of each service.
+        fin: Input file with services' names, and replicas of each service.
+    '''
+    
+    serv=[]  # List of services, and number of tasks (i.e., replicas) of each service
+    with open(fin) as f:
+        for line in f:
+            serv.append(line.split(','))
+    return serv
+
+def putSerToFile(serList,fout):
+    ''' Write input service list, with number of non-complete tasks of each service, to output file.
+        serList: List of tasks, and number of non-complete tasks of each service.
+        fout: Output file to write list of services.
+    '''
+    
+    if not serList or not fout:
+        print("Service list and/or output file is wrong")
+        sys.exit()
+    with open(fout,'w+') as f:
+        for ser in serList:
+            f.write(str(ser[0])+","+str(ser[1]))
+
+def checkSerComplete(serList):
+    """ Check status of each service in the specified list. Decrease number of tasks in each service any
+        task finishes. If all tasks of a service are complete, then number of tasks is zero for this service.
+        serList: List of services, and currently running tasks (i.e., replicas) of each service. Entry example is ['sdf',4]
+    """
+    
+    import docker
+    client=docker.from_env()
+    ser_new=[]  # New service list with modified number of tasks if any
+
+    try:
+        if not serList:
+            print "Please enter a list of services, and number of tasks for each service"
+            sys.exit()
+        for ser in serList:
+            ser_id,task_num=ser
+            if not ser_id or not task_num:
+                print("Service ID and/or task number is not correct")
+                sys.exit()
+            replicas=int(task_num)
+            ser=client.services.get(ser_id)
+            for t in ser.tasks():
+                if t["Status"]["State"]=="complete":
+                    replicas-=1
+            if not replicas:    # Current service still has some running tasks. So, 
+                ser_new.append([ser_id,replicas])
+        return ser_new
+    except:
+        pass
+
 
 def zgesv_err_rem_files(res_path,rows_min,rows_max,cols_min,cols_max,replicas_min,replicas_max,repeat_min,repeat_max):
     ''' Remove wrong results and determine remaining experiments for the zgesv benchmark '''
