@@ -268,7 +268,7 @@ def checkSerComplete(serList):
             for t in ser.tasks():
                 if t["Status"]["State"]=="complete":
                     replicas-=1
-            if not replicas:    # Current service still has some running tasks. So, 
+            if replicas:    # Current service still has some running tasks. So, 
                 ser_new.append([ser_id,replicas])
     except:
         pass
